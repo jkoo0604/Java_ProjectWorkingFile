@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <style>
+    .container {margin: auto;} 
+    svg g text {
+        fill: white; 
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+    #overlay {
+        position: fixed; /* Sit on top of the page content */
+        display: none; /* Hidden by default */
+        width: 50%; /* Full width (cover the whole page) */
+        height: 20%; /* Full height (cover the whole page) */
+        /* top: 0; */
+        left: 350px;
+        /* right: 0; */
+        bottom: 0;
+        background-color: rgba(0,0,0,0.3); /* Black background with opacity */
+        z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+        cursor: pointer; /* Add a pointer on hover */
+    }
+    #text{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        font-size: 50px;
+        color: white;
+        transform: translate(-50%,-50%);
+        -ms-transform: translate(-50%,-50%);
+    }
+    .hidden {
+        display: none;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col text-center">
+                <button class="btn btn-dark btn-sm btn-sort">Sort</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm text-center">
+                <svg></svg>
+            </div>
+        </div>
+    </div>
+    <div id="overlay">
+        <div id="text">
+        pseudocode
+        </div>
+    </div>
+    <div class="hidden"></div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script>
+
+        var dataset = [3,44,38,5,47,15,36,26,27,2,46,4,19,50,48];
+        var datalength = dataset.length;
+
+        var barW = 200;
+        var barH = 50;
+        var svgGap = 10;
+        var hMargin = 50;
+        var svgW = barW + hMargin * 2;
+        var svgH = (barH + svgGap) * datalength + svgGap;
+        var opac = d3.interpolate(0.2, 1);
+        var myColor = d3.scaleLinear().domain([1,15])
+                        .range(["#bfd2e3", "#19354f"]);
+        var sortedArray = [];
+
+        var colordict = {};
+        for (var l = 0; l<dataset.length; l++) {
+            sortedArray.push(dataset[l]);
+            
+        }
+        sortedArray.sort(d3.ascending);
+        // console.log(sortedArray);
+        // console.log(dataset);
+
+        for (var k = 0; k<sortedArray.length; k++) {
+            var newcolor = myColor(k);
+            colordict[sortedArray[k]] = newcolor;
+        }
+        // console.log(colordict);
+
+        var svg = d3.select('svg')  
+            .attr("width", svgW)  
+            .attr("height", svgH)  
+            .attr("class", "bar-chart");
+
+        
+        var barChart = svg.selectAll("g").data(dataset).enter()
+            .append("g")
+            .attr("id", function(d,i){return 'item'+i;})
+            .attr("transform", function(d, i){ var calcH = (barH+svgGap)*i; return "translate(" + hMargin + "," + (i*(barH+svgGap)+svgGap) + ")";});
+            
+        barChart.append("rect")    
+            .attr("height", barH)
+            .attr("width", barW)
+            .attr("rx",10)
+            .attr("fill",function(d, i){return colordict[d]});
+
+        barChart.append("text")
+            .attr("dy", ".35em")
+            .attr("x",barW/2)
+            .attr("text-anchor", "middle")
+            .attr("y", barH/2)
+            .text(function(d) {return d;});
+
+        function updateChart(array, num) {
+            // console.log(array)
+        
+            let barChart1 = svg.selectAll("g").data(array);
+            barChart1.select("rect").transition().attr("fill",function(d, i){return colordict[d]}).duration(800);
+            barChart1.select("text").transition().text(function(d) {return d;}).duration(1000);
+        }
+
+        function updateBorder(num) { 
+            let border1 = svg.select("#item" + num);
+            let border2 = svg.select("#item" + (num-1));
+            border1.select("rect").transition().attr("stroke", "lightsalmon").attr("stroke-width", "5px").duration(800);
+            border2.select("rect").transition().attr("stroke", "lightsalmon").attr("stroke-width", "5px").duration(800);
+            topPosition = (barH + svgGap) * (num - 1);
+            // d3.select(".hidden").text(topPosition);
+            $('.hidden').trigger("change");
+        }
+
+        function removeBorder(num) {
+            let border1 = svg.select("#item" + num);
+            let border2 = svg.select("#item" + (num-1));
+            border1.select("rect").transition().attr("stroke", "none").attr("stroke-width", "0px").duration(800);
+            border2.select("rect").transition().attr("stroke", "none").attr("stroke-width", "0px").duration(800);
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        var inprogress = false;
+        var windowHeight;
+        var topPosition;
+        async function bubblesort() {
+            inprogress = true;
+            let lastsorted = datalength;
+            let swapped;
+            do {
+                swapped = false;
+                for (let n = 1; n < lastsorted; n++) {
+                    updateBorder(n);
+                    await sleep(1200);
+                    // await new Promise(r => setTimeout(r, 1000));
+                    if (dataset[n-1] > dataset[n]) {
+                        swapped= true;
+                        let tempN = dataset[n-1];
+                        dataset[n-1] = dataset[n];
+                        dataset[n] = tempN;
+                        updateChart(dataset, n);
+                        await sleep(1000);
+                        // await new Promise(r => setTimeout(r, 800));
+                    }
+                    removeBorder(n);
+                }
+                removeBorder(lastsorted-1);
+                lastsorted--;
+                // console.log(swapped);
+            } while (swapped);
+            inprogress = false;
+            off();
+        }
+        function on() {
+        document.getElementById("overlay").style.display = "block";
+        }
+
+        function off() {
+        document.getElementById("overlay").style.display = "none";
+        }
+
+        $('.hidden').change(function() {
+            // console.log("change detected");
+            windowHeight=$(window).height();
+            // console.log("window: " + windowHeight + " position: " + topPosition);
+            let cursorRange = windowHeight/4;
+            if (topPosition >= (windowHeight/2) + cursorRange || topPosition <= (windowHeight/2) - cursorRange) {
+                $(window).scrollTop(topPosition - cursorRange);
+                // $(window).stop().animate({
+                //     scrollTop: topPosition - cursorRange
+                // }, 'slow');
+            }
+
+        })
+
+        $('[id^=item]').click(function () {
+            var updateBar = d3.select(".bar-chart").select("#item2").transition();
+            var itemNum = parseInt($(this).attr("id").substr(4));
+            var tempVal = dataset[itemNum-1];
+            dataset[itemNum-1] = dataset[itemNum];
+            dataset[itemNum] = tempVal;
+            // console.log(dataset);
+            updateChart(dataset);
+        });
+
+        $('.btn-sort').click(function() {
+            if (!inprogress) {
+                bubblesort();
+                on();
+            }                   
+        });
+
+    </script>
+</body>
+</html>
