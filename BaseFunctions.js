@@ -47,7 +47,7 @@ function moveRight(index){
 function parseTransform(element){
     if(element == null) return null;
     var transform = element.attr("transform");
-    var coord = transform.match(/\d+/g);
+    var coord = transform.match(/[+-]?\d+(?:\.\d+)?/g);
     return [parseInt(coord[0]), parseInt(coord[1])];
 }
 
