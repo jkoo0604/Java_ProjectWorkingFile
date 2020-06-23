@@ -230,13 +230,13 @@
                     let minPosition = i;
                     changeColor(i,"#7e848f");
                     loadPseudocode("selectsort",2);
-                    await sleep(sleepTime+1500);
+                    await sleep(sleepTime+1000);
                     if (stopSort) return;
                     for (var j = i+1;j<endLoop;j++) {
                         if (stopSort) return;
                         changeColor(j,"#db5e4d");
                         loadPseudocode("selectsort",3);
-                        await sleep(sleepTime+1500);
+                        await sleep(sleepTime);
                         if (stopSort) return;
                         let lookupVal = parseInt(findElement(j).select("text").text());
                         let minVal = parseInt(findElement(minPosition).select("text").text());
@@ -254,7 +254,7 @@
                     changeColor(i,"#ffb83d");
                     loadPseudocode("selectsort",4);
                     if (stopSort) return;
-                    await sleep(sleepTime+1500);
+                    await sleep(sleepTime+1000);
                     if (stopSort) return;
                     if (minPosition != i) {
                         swapPosition(i,minPosition);
@@ -276,6 +276,7 @@
                 changeColor(-1,"#DD9C90");
 
             }
+
 
             function loadPseudocode(sortType, num) {
                 ////// highlight appropriate line in pseudocode and show explanation for currently highlighted line
