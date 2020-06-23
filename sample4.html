@@ -7,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <style>.lineval {font-size: 14px; font-family: Verdana, Geneva, Tahoma, sans-serif;color:darkorange;}</style>
+        <style>.lineval {font-size: 14px; font-family: Verdana, Geneva, Tahoma, sans-serif;color:darkorange;} .padding {margin: 10px;} </style>
     </head>
     <body>
         <div class="container">
@@ -16,6 +16,7 @@
                     <svg></svg>
                 </div>
             </div>
+            <div class="row padding"></div>
             <div class="row">
                 <div class="col text-center">
                     <button id="bubbleSort" class="btn btn-primary">Bubble Sort</button>
@@ -23,27 +24,12 @@
                     <button id="reset" class="btn btn-secondary">Reset</button>
                 </div>
             </div>
+            <div class="row padding"></div>
             <div class="row pseudocode">
                 <div class="col text-center">
                     <div class="row">
                         <div class="col-4"></div>
-                        <div class="col-4 text-left code2">
-<p><pre class="line1">
-while (switched)
-</pre></p>
-<p><pre class="line2">
-    switched = false
-    for i = 1 to lastsort-1
-</pre></p>
-<p><pre class="line3">
-        if left value > right value
-            swap(left value, right value)
-            switched = true
-</pre></p>
-<p><pre class="line4">
-    lastsort--
-</pre></p>
-                        </div>
+                        <div class="col-4 text-left code2"></div>
                     </div>
                     <div class="row">
                         <div class="col-4"></div>
@@ -68,7 +54,7 @@ while (switched)
             var originalData = [33, 62, 44, 14, 80, 100, 56, 120, 180, 30, 40, 120, 10, 10, 10];
             //Define display padding and width of bars
             var barPadding = 5;  
-            var barWidth = (svgWidth / originalData.length);
+            var barWidth = Math.floor((svgWidth / originalData.length));
             //Define time to wait between animations in ms
             var sleepTime= 500;
             ////// set a flag to stop async function call when reset is triggered
@@ -90,82 +76,60 @@ while (switched)
             $("#reset").click(function(){
                 ////// set stopSort flag to true, remove pseudocode, replace content of svg completely
                 stopSort = true;
-                loadPseudocode(-1);
+                loadPseudocode("bubblesort",-1);
                 var currentchart = svg.selectAll("g").remove();
-                shuffle(originalData);
+                // shuffle(originalData);
+                randomArray(15,150);
                 initialBars(originalData);
 
             });
             $("#insertionSort").click(function(){
-                stopSort = true;
-                resetBars(originalData);
-                insertionSort(originalData);
+                // stopSort = true;
+                // resetBars(originalData);
+                // insertionSort(originalData);
             });
 
             
             //Bubble sort function
             async function bubbleSort(dataset){
-                ////// stopSort is set to false once a function starts, but there are several checks within async function to check for changes to this flag
                 stopSort = false;
-                ////// upper limit of 'for' loop (decremented after each loop)
                 let endsort = dataset.length;
-                ////// condition for 'while' loop
                 let switched = true;
+                loadPseudocode("bubblesort",0)
                 while (switched) {
-                    ////// this line has been addded in several places in case we need to exit this function
                     if (stopSort) return;
-                    loadPseudocode(2)
+                    loadPseudocode("bubblesort",2)
                     switched=false;
                     await sleep(sleepTime+1500);
                     for (var i = 1; i < endsort; i++) {
-                        loadPseudocode(3)
+                        loadPseudocode("bubblesort",3)
                         if (stopSort) return;
-                        ////// change color of bars being compared to red
                         changeBarColor(i+1);
                         await sleep(sleepTime);
                         if (stopSort) return;
-                        if (dataset[i-1] > dataset[i]) {
+                        let vRight = parseInt(svg.selectAll("g").filter(function() {return d3.select(this).attr("positionID") == "p" + (i+1);}).select("text").text());
+                        let vLeft = parseInt(svg.selectAll("g").filter(function() {return d3.select(this).attr("positionID") == "p" + (i);}).select("text").text());
+                        if (vLeft > vRight) {
                             switched = true;
-                            let tempval = dataset[i-1];
-                            dataset[i-1] = dataset[i];
-                            dataset[i] = tempval;
-                            generateBars(dataset);
+                            // let tempval = dataset[i-1];
+                            // dataset[i-1] = dataset[i];
+                            // dataset[i] = tempval;
+                            // generateBars(dataset);
+                            swap(i+1, i);
                             await sleep(sleepTime-100);
                         }
-                        ////// when comparison is over, change color back to green
                         returnBarColor(i+1);
                     }
-                    ////// mark last bar in this loop 'sorted' by changing the color to blue
                     finishBarColor(endsort);
-                    loadPseudocode(4);
+                    loadPseudocode("bubblesort",4);
                     await sleep(sleepTime+1000);
-                    ////// decrement upper limit for 'for' loop (since last position is sorted)
                     endsort--;
                 }
-                loadPseudocode(1);
+                loadPseudocode("bubblesort",1);
                 await sleep(sleepTime+2000);
-                ////// remove pseudocode and change all bars to blue to indicate sorted list
-                loadPseudocode(-1);
+                loadPseudocode("bubblesort",-1);
                 finishBarColor(-1);
 
-            }
-
-            //Insertion Sort function
-            async function insertionSort(data){
-                stopSort = false;
-                for(var i = 1; i < data.length; i++){
-                    var current = data[i];
-                    var j = i-1;
-                    while((j >= 0) && (current < data[j])){
-                        data[j+1] = data[j];
-                        generateBars(data, j+1, i);
-                        await sleep(sleepTime);
-                        j--;
-                    }
-                    data[j+1] = current;
-                    generateBars(data, i, j+1);
-                    await sleep(sleepTime);
-                }
             }
 
             //Sleep function so that you can see transitions
@@ -175,7 +139,7 @@ while (switched)
 
             //Function to show initial data in graph and generate initial elements
             function initialBars(data){
-                loadPseudocode(-1);
+                loadPseudocode("bubblesort",-1);
                 ////// create a g tag first to group rect and text
                 var barChart = svg.selectAll("g")  
                 .data(data)
@@ -183,7 +147,7 @@ while (switched)
                 .append("g")
                 // .attr("id", function(d,i){return 'item'+i;})
                 .attr("transform", function(d, i){return "translate(" + (barWidth * i) + "," + (svgHeight-d) + ")";})               
-                .attr("positionID", function(d,i){return "p"+i;});
+                .attr("positionID", function(d,i){return "p"+(i+1);});
                 
                 barChart.append("rect")
                 .attr("height",function(d) {return d;})
@@ -196,23 +160,6 @@ while (switched)
                 .attr("text-anchor", "middle")
                 .text(function(d) {return d;});
 
-            }
-
-            function resetBars(data){
-                ////// currently not used in 'reset'
-                stopSort = true;
-                var barChart = svg.selectAll("g")  
-                .data(shuffle(data))
-                .transition()
-                .attr("transform", function(d, i){return "translate(" + (barWidth * i) + "," + (svgHeight-d) + ")";});
-                
-                barChart.select("rect")
-                .attr("height",function(d) {return d;})
-                .attr('fill', '#3c763d');
-
-                barChart.select("text")
-                .attr("x",(barWidth-barPadding)/2)
-                .text(function(d) {return d;});
             }
 
             //Function to show all the bars
@@ -233,19 +180,25 @@ while (switched)
             }
 
             function changeBarColor(num) {
-                ////// change rect colors to red
-                let bar1 = svg.select("g:nth-child(" + num + ")");
-                let bar2 = svg.select("g:nth-child(" + (num-1) + ")");
-                bar1.select("rect").transition().attr("fill","red");
-                bar2.select("rect").transition().attr("fill","red");
+                // let bar1 = svg.select("g:nth-child(" + num + ")");
+                // let bar2 = svg.select("g:nth-child(" + (num-1) + ")");
+                // bar1.select("rect").transition().attr("fill","red");
+                // bar2.select("rect").transition().attr("fill","red");
+                let gRight = svg.selectAll("g").filter(function() {return d3.select(this).attr("positionID") == "p" + num;})
+                let gLeft = svg.selectAll("g").filter(function() {return d3.select(this).attr("positionID") == "p" + (num-1);})
+                gRight.select("rect").transition().attr("fill","red");
+                gLeft.select("rect").transition().attr("fill","red");
             }
 
             function returnBarColor(num) {
-                ////// change rect colors back to green
-                let bar1 = svg.select("g:nth-child("+num+")")
-                let bar2 = svg.select("g:nth-child("+(num-1)+")")
-                bar1.select("rect").transition().attr("fill","#3c763d");
-                bar2.select("rect").transition().attr("fill","#3c763d");
+                // let bar1 = svg.select("g:nth-child("+num+")")
+                // let bar2 = svg.select("g:nth-child("+(num-1)+")")
+                // bar1.select("rect").transition().attr("fill","#3c763d");
+                // bar2.select("rect").transition().attr("fill","#3c763d");
+                let gRight = svg.selectAll("g").filter(function() {return d3.select(this).attr("positionID") == "p" + num;})
+                let gLeft = svg.selectAll("g").filter(function() {return d3.select(this).attr("positionID") == "p" + (num-1);})
+                gRight.select("rect").transition().attr("fill","#3c763d");
+                gLeft.select("rect").transition().attr("fill","#3c763d");
             }
 
             function finishBarColor(num) {
@@ -254,7 +207,7 @@ while (switched)
                     let bars = svg.selectAll("g")
                     bars.select("rect").transition().attr("fill","blue");
                 }
-                let bar = svg.select("g:nth-child("+num+")")
+                let bar = svg.selectAll("g").filter(function() {return d3.select(this).attr("positionID") == "p" + num;})
                 bar.select("rect").transition().attr("fill","blue");
             }
 
@@ -269,48 +222,90 @@ while (switched)
                 return dataset;
             }
 
-            function loadPseudocode(num) {
+            function randomArray(length, upperLimit) {
+                originalData.length = 0;
+                for (var x = 0; x < length; x++) {
+                    originalData.push(Math.floor(Math.random()*((upperLimit+1) - 3 + 1)) + 3);
+                }
+            }
+
+            function loadPseudocode(sortType, num) {
                 ////// highlight appropriate line in pseudocode and show explanation for currently highlighted line
+                
                 var codeDict = {
-                    "line1": "If there was no swap during the entire for loop, array is now sorted",
-                    "line2": "Start each 'for' loop with switched = false, and iterate until the last unsorted position",
-                    "line3": "If value at (i-1) is greater than value at (i), swap the two values and set switched flag to true",
-                    "line4": "Last position of each 'for' loop is sorted"
+                    "bubblesort": {
+                                    "line1": ["while (switched)", "If there was no swap during the entire for loop, array is now sorted"],
+                                    "line2": ["   switched = false\n   for i = 1 to lastsort-1", "Start each 'for' loop with switched = false, and iterate until the last unsorted position"],
+                                    "line3": ["      if left value > right value\n      swap(left value, right value)\n      switched = true","If value at (i-1) is greater than value at (i), swap the two values and set switched flag to true"],
+                                    "line4": ["   lastsort--","Last position of each 'for' loop is sorted"]
+                                    },
+                    "insertionsort": {
+                                    "line1": [],
+                                    "line2": [],
+                                    "line3": [],
+                                    "line4": []
+                                    },
+                    "mergesort": {
+                                    "line1": [],
+                                    "line2": [],
+                                    "line3": [],
+                                    "line4": []
+                                    },
+                    "quicksort": {
+                                    "line1": [],
+                                    "line2": [],
+                                    "line3": [],
+                                    "line4": []
+                                    }
                 }
                 ////// if num = -1, remove code and hide pseudocode div
                 if (num===-1) {
                     d3.select(".lineval").text("");
-                    for (var y = 0; y<=4; y++) {
-                        d3.select(".line" + y).style("background-color","white")
-                        .style("color","black");
-                    }
+                    d3.select(".code2").selectAll("pre").remove();
+                    d3.select(".code2").style("border", "none");
                     d3.select(".pseudocode").style("display","none");
                     return;
                 }
-                if (stopSort) return;
-                ////// if num in [1,4], highlight pseudocode at line = num
-                d3.select(".pseudocode").style("display","block");
-                let code;
-                for (var z = 1; z<=4; z++) {
-                    code = d3.select(".line" + z)
+                let code = d3.select(".code2");
+                let lineCount = Object.keys(codeDict[sortType]).length;
+                if (isNaN(lineCount)) {
+                    return;
+                }
+
+                ////// if num = 0, load code and show div
+                if (num===0) {
+                    for (var z = 1; z<=lineCount; z++) {
+                        code.append("pre").attr("class","line" + z).text(codeDict[sortType]["line" + z][0]);
+                    }
+                    code.style("border", "0.1em dotted darkorange").style("padding","10px"); 
+                    d3.select(".pseudocode").style("display","block");
+                    return;
+                }
+                if (stopSort) return;              
+                
+                ////// any other value of num (>0), highlight code and show additional text
+                for (var z = 1; z<=lineCount; z++) {
+                    let line = d3.select(".line" + z)
                     if (z === num) {
-                        code.style("background-color","black")
+                        line.style("background-color","black")
                         .style("color","white");
                     } else {
-                        code.style("background-color","white")
+                        line.style("background-color","white")
                         .style("color","black");
                     }
                 }
-                d3.select(".lineval").text(codeDict["line" + num]);
+                d3.select(".lineval").text(codeDict[sortType]["line" + num][1]);
             }
 
-            function slideBar(num) { 
-                let gRight = svg.selectAll("g").filter(function() {return d3.select(this).attr("positionID") == "p" + num;})
-                let gLeft = svg.selectAll("g").filter(function() {return d3.select(this).attr("positionID") == "p" + (num-1);})
-                gRight.transition().attr("transform", "translate(" + (barWidth * (num-1)) + "," + (svgHeight-d) + ")");
-                gLeft.transition().attr("transform", "translate(" + (barWidth * num) + "," + (svgHeight-d) + ")");
-                gRight.attr("positionID",num-1);
-                gLeft.attr("positionID",num);
+            function swap(num1, num2) { 
+                let gRight = svg.selectAll("g").filter(function() {return d3.select(this).attr("positionID") == "p" + num1;})
+                let gLeft = svg.selectAll("g").filter(function() {return d3.select(this).attr("positionID") == "p" + num2;})
+                let hRight = parseInt(gRight.select("rect").attr("height"));
+                let hLeft = parseInt(gLeft.select("rect").attr("height"));
+                gRight.transition().attr("transform", "translate(" + (barWidth * (num2-1)) + "," + (svgHeight-hRight) + ")");
+                gLeft.transition().attr("transform", "translate(" + (barWidth * (num1-1)) + "," + (svgHeight-hLeft) + ")");
+                gRight.attr("positionID","p" + num2);
+                gLeft.attr("positionID","p" + num1);
             }
 
         </script>

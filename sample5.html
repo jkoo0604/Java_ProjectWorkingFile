@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Title</title>
+        <!-- Required meta tags -->
+        <meta charset="ISO-8859-1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-custom">
+            <a class="navbar-brand" href="#">Sort</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="#" id="bubbleSort">Bubble</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="insertionSort">Insertion</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="mergeSort">Merge</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="selectionSort">Selection</a>
+            </li>
+            </ul>
+            <span class="navbar-text">
+            <a href="#" id="reset">Reset</a>
+            </span>
+        </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="col text-center">
+                    <div class="title"><span class="title-p"></span></div>        
+                    <svg></svg>
+                </div>
+            </div>
+            <div class="row padding"></div>
+            <div class="row pseudocode">
+                <div class="col text-center">
+                    <div class="row">
+                        <div class="col-4"></div>
+                        <div class="col-4 text-left code2"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4"></div>
+                        <div class="col-4 text-center code1">
+                            <p class="lineval"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>            
+        </div>
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <script src="https://d3js.org/d3.v5.min.js"></script>
+        <script src="BaseFunctions.js"></script>
+        <script>
+            //Define the main container size
+            var svgWidth = 500;
+            var svgHeight = 600;
+            //Define initial data
+            var originalData = [33, 62, 44, 14, 80, 100, 56, 120, 180, 30, 40, 120, 10, 10, 10];
+            //Define display padding and width of bars
+            var barPadding = 5;  
+            var barWidth = Math.floor((svgWidth - barPadding) / originalData.length);
+            //Define time to wait between animations in ms
+            var sleepTime= 500;
+            ////// set a flag to stop async function call when reset is triggered
+            var stopSort = false;
+            //Set the default container's size
+            var svg = d3.select('svg')
+            .attr("width", svgWidth)
+            .attr("height", svgHeight)
+            .attr("class", "bar-chart");
+            //Show initial data shuffled
+            initialBars(shuffle(originalData));
+
+            //Set on click listeners
+            $("#bubbleSort").click(function(){
+                stopSort = true;
+                bubbleSort(originalData);
+            });
+            $("#reset").click(function(){
+                stopSort = true;
+                loadPseudocode("bubblesort",-1);
+                loadTitle("reset");
+                var currentchart = svg.selectAll("g").remove();
+                initialBars(randomArray(15,150));
+
+            });
+            $("#insertionSort").click(function(){
+                stopSort = true;
+                insertionSort(originalData);
+            });
+            $("#selectionSort").click(function(){
+                stopSort = true;
+                selectionSort(originalData);
+            });
+
+            
+            //Bubble sort function
+            async function bubbleSort(dataset){
+                stopSort = false;
+                loadTitle("Bubble Sort");
+                let endsort = dataset.length;
+                let switched = true;
+                loadPseudocode("bubblesort",0)
+                while (switched) {
+                    if (stopSort) return;
+                    loadPseudocode("bubblesort",2)
+                    switched=false;
+                    await sleep(sleepTime+1500);
+                    if (stopSort) return;
+                    for (var i = 1; i < endsort; i++) {
+                        loadPseudocode("bubblesort",3)
+                        if (stopSort) return;
+                        changeColor(i,"#ffb83d");
+                        changeColor(i-1,"#ffb83d");
+                        await sleep(sleepTime);
+                        if (stopSort) return;
+                        let vRight = parseInt(findElement(i).select("text").text());
+                        let vLeft = parseInt(findElement(i-1).select("text").text());
+
+                        if (vLeft > vRight) {
+                            switched = true;
+                            swapPosition(i,i-1)
+                            if (stopSort) return;
+                            await sleep(sleepTime-100);
+                            if (stopSort) return;
+                        }
+                        changeColor(i,"#475951");
+                        changeColor(i-1,"#475951");
+                    }
+                    // finishBarColor(endsort);
+                    changeColor(endsort-1,"#db5e4d");
+                    loadPseudocode("bubblesort",4);
+                    if (stopSort) return;
+                    await sleep(sleepTime+1000);
+                    if (stopSort) return;
+                    endsort--;
+                }
+                loadPseudocode("bubblesort",1);
+                if (stopSort) return;
+                await sleep(sleepTime+2000);
+                if (stopSort) return;
+                loadPseudocode("bubblesort",-1);
+                // finishBarColor(-1);
+                changeColor(-1,"#db5e4d");
+
+            }
+
+            //Insertion Sort function
+            async function insertionSort(data){
+                stopSort = false;
+                loadTitle("Insertion Sort");
+                var tempData = data;
+                var time = 1000;
+                loadPseudocode("insertionsort",0)
+                loadPseudocode("insertionsort",2)
+                if (stopSort) return;
+                await sleep(time+500);
+                if (stopSort) return;
+                for(var i = 1; i < data.length; i++){
+                    var current = data[i];
+                    var moving = i;
+                    loadPseudocode("insertionsort",3)
+                    moveDown(moving);
+                    changeColor(moving, "#ffb83d");
+                    if (stopSort) return;
+                    await sleep(time+800);
+                    if (stopSort) return;
+                    var j = i-1;
+                    while((j >= 0) && (current < data[j])){
+                        if (stopSort) return;
+                        loadPseudocode("insertionsort",4)
+                        changeColor(j, "#db5e4d");
+                        await sleep(time);
+                        if (stopSort) return;
+                        moveRight(j);
+                        changeColor(j, "#475951");
+                        moveLeft(moving);
+                        if (stopSort) return;
+                        await sleep(time);
+                        if (stopSort) return;
+                        data[j+1] = data[j];
+                        swapPositionID(j+1, j);
+                        j--;
+                        moving--;
+                    }
+                    //Make sure j is not negative or else all elements will change color
+                    if (stopSort) return;
+                    if(j >= 0){
+                        if (stopSort) return;
+                        changeColor(j, "#db5e4d");
+                        await sleep(time);
+                        if (stopSort) return;
+                        changeColor(j, "#475951");
+                    } 
+                    if (stopSort) return;
+                    moveUp(j+1);
+                    changeColor(j+1, "#475951");
+                    data[j+1] = current;
+                }
+                loadPseudocode("insertionsort",1);
+                if (stopSort) return;
+                await sleep(sleepTime+1500);
+                if (stopSort) return;
+                loadPseudocode("insertionsort",-1);
+            }
+
+            //Selection sort function
+            async function selectionSort(dataset){
+                stopSort = false;
+                loadTitle("Selection Sort");
+                let endLoop = dataset.length;
+                loadPseudocode("selectsort",0)
+                for (var i = 0; i<endLoop-1;i++) {
+                    if (stopSort) return;
+                    let minPosition = i;
+                    changeColor(i,"#7e848f");
+                    loadPseudocode("selectsort",2);
+                    await sleep(sleepTime+1500);
+                    if (stopSort) return;
+                    for (var j = i+1;j<endLoop;j++) {
+                        if (stopSort) return;
+                        changeColor(j,"#db5e4d");
+                        loadPseudocode("selectsort",3);
+                        await sleep(sleepTime+1500);
+                        if (stopSort) return;
+                        let lookupVal = parseInt(findElement(j).select("text").text());
+                        let minVal = parseInt(findElement(minPosition).select("text").text());
+                        if (lookupVal < minVal) {
+                            
+                            changeColor(j,"#ffb83d");
+                            changeColor(minPosition,"#475951");
+                            changeColor(i,"#7e848f")
+                            minPosition = j;
+                        } else {
+                            changeColor(j,"#475951");
+                        }
+
+                    }
+                    changeColor(i,"#ffb83d");
+                    loadPseudocode("selectsort",4);
+                    if (stopSort) return;
+                    await sleep(sleepTime+1500);
+                    if (stopSort) return;
+                    if (minPosition != i) {
+                        swapPosition(i,minPosition);
+                        if (stopSort) return;
+                        await sleep(sleepTime+1500);
+                        if (stopSort) return;
+                        changeColor(minPosition,"#475951")
+                    }
+                    
+                    if (stopSort) return;
+                    changeColor(i,"#475951");
+                }
+                loadPseudocode("selectsort",1);
+                if (stopSort) return;
+                await sleep(sleepTime+2000);
+                if (stopSort) return;
+                loadPseudocode("selectsort",-1);
+                // finishBarColor(-1);
+                changeColor(-1,"#DD9C90");
+
+            }
+
+            function loadPseudocode(sortType, num) {
+                ////// highlight appropriate line in pseudocode and show explanation for currently highlighted line
+                
+                var codeDict = {
+                    "bubblesort": {
+                                    "line1": ["while (switched)", "If there was no swap during the entire for loop, array is now sorted"],
+                                    "line2": ["   switched = false\n   for i = 1 to lastsort-1", "Start each 'for' loop with switched = false, and iterate until the last unsorted position"],
+                                    "line3": ["      if left value > right value\n      swap(left value, right value)\n      switched = true","If value at (i-1) is greater than value at (i), swap the two values and set switched flag to true"],
+                                    "line4": ["   lastsort--","Last position of each 'for' loop is sorted"]
+                                    },
+                    "insertionsort": {
+                                    "line1": ["for i = 1 to data.length-1", "'for' loop is complete and list is sorted"],
+                                    "line2": ["   j = i - 1", "assign j the position to the left of i"],
+                                    "line3": ["   while (j>=0 && data[i] < data[j]", "check if data[i] is smaller than values on the left side"],
+                                    "line4": ["      swap(i, j)\n      j--", "shift i to the left until i is sorted"]
+                                    },
+                    "mergesort": {
+                                    "line1": [],
+                                    "line2": [],
+                                    "line3": [],
+                                    "line4": []
+                                    },
+                    "quicksort": {
+                                    "line1": [],
+                                    "line2": [],
+                                    "line3": [],
+                                    "line4": []
+                                    },
+                    "selectsort": {
+                                    "line1": ["for i = 1 to data.length - 1", "'for' loop is complete and list is sorted"],
+                                    "line2": ["   currentMin = i\n   for j = i+1 to data.length", "given current position of i, check if there are elements with values lower than data[i]"],
+                                    "line3": ["      if data[j] < data[currentMin]\n         currentMin = j", "if a lower value is found, assign j as the new minimum position"],
+                                    "line4": ["   if currentMin != i\n      swap(i, currentMin)","if j loop has found a new minimum, swap the minimum and i"]
+                                    }
+                }
+                ////// if num = -1, remove code and hide pseudocode div
+                if (num===-1) {
+                    d3.select(".lineval").text("");
+                    d3.select(".code2").selectAll("pre").remove();
+                    d3.select(".code2").style("border", "none");
+                    d3.select(".pseudocode").style("display","none");
+                    return;
+                }
+                let code = d3.select(".code2");
+                let lineCount = Object.keys(codeDict[sortType]).length;
+                if (isNaN(lineCount)) {
+                    return;
+                }
+
+                ////// if num = 0, load code and show div
+                if (num===0) {
+                    for (var z = 1; z<=lineCount; z++) {
+                        code.append("pre").attr("class","line" + z).text(codeDict[sortType]["line" + z][0]);
+                    }
+                    code.style("padding","10px").style("background-color","white"); 
+                    d3.select(".pseudocode").style("display","block");
+                    return;
+                }
+                if (stopSort) return;              
+                
+                ////// any other value of num (>0), highlight code and show additional text
+                for (var z = 1; z<=lineCount; z++) {
+                    let line = d3.select(".line" + z)
+                    if (z === num) {
+                        line.style("background-color","black")
+                        .style("color","white");
+                    } else {
+                        line.style("background-color","white")
+                        .style("color","black");
+                    }
+                }
+                d3.select(".lineval").text(codeDict[sortType]["line" + num][1]);
+            }
+
+        </script>
+    </body>
+</html>

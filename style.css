@@ -1,0 +1,70 @@
+.lineval {
+    font-size: 14px; 
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color:#e9911e;
+} 
+
+.padding {
+    margin: 7px;
+}
+
+.navbar-custom {
+    background-color: #3A3B4B;
+}
+
+.navbar-custom .navbar-nav .nav-link,
+.navbar-custom .navbar-brand,
+.navbar-custom .navbar-text,
+.navbar-custom .navbar-toggler-icon:focus,
+.navbar-custom .nav-item.active .nav-link,
+.navbar-custom .nav-item:focus .nav-link,
+.navbar-custom .nav-item:hover .nav-link,
+.navbar-custom .nav-item:visited .nav-link,
+.navbar-custom a {
+    color: rgba(255,255,255,1)
+}
+
+.navbar-custom .navbar-toggler {
+    color: rgba(255,255,255,0.5);
+    border-color: rgba(255, 255, 255, .7);
+}
+
+.navbar-custom .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.7%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e")
+}
+.navbar-custom .navbar-toggler:focus {
+    outline: 0;
+}
+
+body {
+    background-color: #EFE3D6;
+}
+
+.bar-chart {
+    background-color: rgb(203, 203, 203);
+    mix-blend-mode: multiply;
+    border-radius: 3px;
+    box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56), 
+    0 4px 25px 0px rgba(0, 0, 0, 0.12), 
+    0 8px 10px -5px rgba(0, 0, 0, 0.2);
+    padding-left: 5px;
+}
+
+.title {
+    padding: 15px;
+    text-align: center;
+    height: 54px;
+}
+
+.title-p {
+    background-color: rgb(184,114,91);
+    color: white;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    padding: 10px;
+    display: none;
+    border-radius: 3px;
+}
+
+.code2 {
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+}
