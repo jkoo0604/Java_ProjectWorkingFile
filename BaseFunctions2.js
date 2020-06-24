@@ -4,6 +4,19 @@ var transitionDuration = 500;
 var verticalMoveDistance = 200;
 //Define initial height of bars above bottom of svg container
 var yAdjust = 300;
+var finished = [];
+
+
+var colors = {
+    "selected": "yellow",
+    "compare" : "red",
+    "lower": "green",
+    "higher": "purple",
+    "finished": "orange",
+    "default": "gray",
+    "black": "black",
+    "white": "white"
+};
 
 //Move item down
 function moveDown(index){
@@ -145,4 +158,38 @@ function loadTitle(sortType) {
         return;
     }
     d3.select(".title-p").transition().text(sortType).style("display","inline");
+}
+
+//Move bar at index, delas are given in units of how many indexes to move(negative = left or down, positive = right or up)
+function move(index, deltaX, deltaY){
+    var item = findElement(index);
+    var coord = parseTransform(item);
+    coord[0] = coord[0] + barWidth*deltaX;
+    coord[1] = coord[1] - verticalMoveDistance*deltaY;
+    item.transition().duration(transitionDuration).attr("transform", "translate(" + coord[0] + "," + coord[1] + ")");
+}
+
+// basically generate bars without the transition
+function refreshPositionIds(data){
+    var yAdjust = 300;
+    //Generate all the bars
+    var barChart = svg.selectAll("g")  
+    .data(data)
+    .attr("transform", function(d, i){return "translate(" + (barWidth * i) + "," + (svgHeight-d-yAdjust) + ")";})
+    .attr("positionID", function(d,i){return "p"+(i+1);});
+    
+    barChart.select("rect")
+    .attr("height",function(d) {return d;})
+
+    barChart.select("text")
+    .attr("x",(barWidth-barPadding)/2)
+    .text(function(d) {return d;});
+}
+
+function createZeroArray(length){
+    var arr = [];
+    for(var i = 0; i < length; i++){
+        arr.push(0);
+    }
+    return arr;
 }

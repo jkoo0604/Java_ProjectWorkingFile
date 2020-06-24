@@ -11,7 +11,7 @@
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-custom">
-            <a class="navbar-brand" href="#">Sort</a>
+            <a class="navbar-brand" href="#">Sort:</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -110,6 +110,16 @@
             $("#selectionSort").click(function(){
                 stopSort = true;
                 selectionSort(originalData);
+            });
+
+            $("#mergeSort").click(function(){
+                stopSort = true;
+                bottomUpMergeSort(originalData);
+            });
+
+            $("#quickSort").click(function(){
+                stopSort = true;
+                quickSort(originalData, 0, originalData.length-1);
             });
 
             
@@ -281,14 +291,195 @@
 
             }
 
+            // Merge sort function
+            function bottomUpMergeSort(dataset) {
+                stopSort = false;
+                loadTitle("Merge Sort");
+                loadPseudocode("mergesort",0)
+                let array = dataset.map(function(data) { return data; });
+                bottomUpSort(array, array.length);
+                return array;
+            }
+            
+            async function bottomUpSort(dataset, n) {
+                var width,
+                    i;
+                for(width=1; width<n; width=width*2) {
+                    refreshPositionIds(dataset);
+                    for(i=0; i<n; i=i+2*width) {
+                        if(stopSort) return;
+                        loadPseudocode("mergesort",2);
+                        await sleep(sleepTime);
+                        let left = i;
+                        let right = Math.min(i+width, n);
+                        let end = Math.min(i+2*width, n);
+                        for(let j=left; j<end; j++){
+                            if(stopSort) return;
+                            if(j<right) changeColor(j,"red");
+                            else changeColor(j,"blue");                            
+                            move(j,0,-1);
+                            await sleep(sleepTime);
+                        }
+                        loadPseudocode("mergesort",3)
+                        bottomUpMerge(dataset, left, right, end);
+                        
+                        await sleep(sleepTime*2*width);
+                        
+                    }
+                    loadPseudocode("mergesort",4)
+                    await sleep(sleepTime+1500);
+                }
+                loadPseudocode("mergesort",1);
+                await sleep(sleepTime+1500);
+                loadPseudocode("mergesort",-1)
+            }
+
+            async function bottomUpMerge(dataset, left, right, end) {
+                var n = left,
+                    m = right,
+                    currentSort = [],
+                    j,k;
+                
+                for(j=left; j<end; j++) {
+                    if(stopSort) return;
+                    if(n<right && (m>=end || dataset[n]<dataset[m])) {
+                        currentSort.push(dataset[n]);
+                        changeColor(n,'#3c763d');
+                        move(n, j-n, 1);
+                        await sleep(sleepTime);
+                        n++;
+                    }
+                    else{
+                        currentSort.push(dataset[m]);
+                        changeColor(m,'#3c763d');
+                        move(m, -1*(m-j), 1);
+                        await sleep(sleepTime);
+                        m++;
+                    }
+                }
+                
+                currentSort.map(function(data,i) { dataset[left + i] = data; });
+            }
+
+            //Quick sort
+            
+            async function quickSortPartition(data, first, last){
+                if(stopSort) return;
+                var sleepTime = 500;
+                //Set last value in array as the pivot value
+                loadPseudocode("quicksort",2);
+                var pivot = data[last];
+                changeColor(last, "yellow");
+                await sleep(sleepTime+1000);
+                if(stopSort) return;
+                //Keep track of the next value that is larger than the pivot
+                var i = first;
+                loadPseudocode("quicksort",3);
+                //Loop through all values to move all values smaller than pivot to left side of pivot and all values greater to the right
+                for(var j = first; j < last; j++){
+                    if(stopSort) return;
+                    //Change color of bar we are looking at
+                    changeColor(j, "red");
+                    if(stopSort) return;
+                    await sleep(sleepTime);
+                    if(data[j] <= pivot){
+                        if(stopSort) return;
+                        changeColor(j, "green");
+                        await sleep(sleepTime);
+                        var temp = data[j];
+                        data[j] = data[i];
+                        data[i] = temp;
+                        if(stopSort) return;
+                        //Only swap if there is something to swap
+                        if(i != j){
+                            await swapPosition(i, j);
+                            await sleep(sleepTime);
+                        }
+                        i++;
+                    }else{
+                        if(stopSort) return;
+                        changeColor(j, "purple");
+                        await sleep(sleepTime);
+                    }
+                }
+                //Swap pivot with the next value that is larger than the pivot
+                loadPseudocode("quicksort",4);
+                await sleep(sleepTime+500);
+                if(stopSort) return;
+                var temp = data[i];
+                data[i] = data[last];
+                data[last] = temp;
+                if(stopSort) return;
+                await swapPosition(i, last);
+                //set pivot to different color to show it is in final position
+                changeColor(i, "orange");
+                finished[i] = 1;
+                if(stopSort) return;
+                await sleep(sleepTime);
+                //Reset the position IDs
+                if(stopSort) return;
+                await refreshPositionIds(data);
+                //set all finished back to orange;
+                if(stopSort) return;
+                for(var index = 0; index < finished.length; index++){
+                    if(stopSort) return;
+                    if(finished[index] == 1){
+                        changeColor(index, "orange");
+                    } else{
+                        changeColor(index, "gray");
+                    }
+                }
+                //Return where the new pivot will be
+                return i;
+            }
+
+            async function quickSort(data, first, last){
+                stopSort = false;
+                finished = createZeroArray(data.length);
+                loadTitle("Quick Sort");
+                loadPseudocode("quicksort",0)
+                var sleepTime = 500;
+                //Create an array to use as a stack and keep track of all of the partitions we have
+                var stack = [];
+                //Add first and last index to the stack
+                stack.push(first);
+                stack.push(last);
+                //While the stack still has elements
+                if(stopSort) return;
+                while(stack.length > 0){
+                    //Partition the data
+                    last = stack.pop();
+                    first = stack.pop();
+                    if(stopSort) return;
+                    var pivot = await this.quickSortPartition(data, first, last);
+                    //Push the new partition to the stack
+                    if(pivot - 1 > first){
+                        stack.push(first);
+                        stack.push(pivot-1);
+                    }
+                    if(pivot+1 < last){
+                        stack.push(pivot +1);
+                        stack.push(last);
+                    }
+                    if(stopSort) return;
+                }
+                loadPseudocode("quicksort",1);
+                if(stopSort) return;
+                await sleep(sleepTime+1500);
+
+                //Change all to orange
+                changeColor(-1, "orange");
+                loadPseudocode("quicksort",-1);
+            }
+
 
             function loadPseudocode(sortType, num) {
                 ////// highlight appropriate line in pseudocode and show explanation for currently highlighted line
                 
                 var codeDict = {
                     "bubblesort": {
-                                    "line1": ["while (switched)", "If there was no swap during the entire for loop, array is now sorted"],
-                                    "line2": ["   switched = false\n   for i = 1 to lastsort-1", "Start each 'for' loop with switched = false, and iterate until the last unsorted position"],
+                                    "line1": ["while (switched)", "there was no swap during the entire loop, array is now sorted"],
+                                    "line2": ["   switched = false\n   for i = 1 to lastsort-1", "start each 'for' loop with switched = false, and iterate until the last unsorted position"],
                                     "line3": ["      if left value > right value\n      swap(left value, right value)\n      switched = true","If value at (i-1) is greater than value at (i), swap the two values and set switched flag to true"],
                                     "line4": ["   lastsort--","Last position of each 'for' loop is sorted"]
                                     },
@@ -299,22 +490,22 @@
                                     "line4": ["      swap(i, j)\n      j--", "shift i to the left until i is sorted"]
                                     },
                     "mergesort": {
-                                    "line1": [],
-                                    "line2": [],
-                                    "line3": [],
-                                    "line4": []
+                                    "line1": ["for width = 1 to data.length","'for' loop is complete and list is sorted"],
+                                    "line2": ["   for i = 1 to partition.length","partition data according to current width"],
+                                    "line3": ["      if left < right\n         load current index with left\n      else load current index with right","sort values in current partition by comparing left and right sections"],
+                                    "line4": ["   width*=2","increase width of partition by 100% (recursively merge adjoining partitions"]
                                     },
                     "quicksort": {
-                                    "line1": [],
-                                    "line2": [],
-                                    "line3": [],
-                                    "line4": []
+                                    "line1": ["while (unsorted partition exists)","no unsorted partition remains and list is sorted"],
+                                    "line2": ["   pivot = partition[partition.length-1]","choose last index in current (unsorted) partition as pivot"],
+                                    "line3": ["   if partition[i] < pivot\n      swap(i, first item > pivot","move values less than pivot to the left and those greater than pivot to the right"],
+                                    "line4": ["   swap(pivot, first item > pivot)","place pivot between left and right, and pivot is now sorted"]
                                     },
                     "selectsort": {
                                     "line1": ["for i = 1 to data.length - 1", "'for' loop is complete and list is sorted"],
-                                    "line2": ["   currentMin = i\n   for j = i+1 to data.length", "given current position of i, check if there are elements with values lower than data[i]"],
+                                    "line2": ["   currentMin = i\n   for j = i+1 to data.length", "given current position of i, check if there are values lower than data[i]"],
                                     "line3": ["      if data[j] < data[currentMin]\n         currentMin = j", "if a lower value is found, assign j as the new minimum position"],
-                                    "line4": ["   if currentMin != i\n      swap(i, currentMin)","if j loop has found a new minimum, swap the minimum and i"]
+                                    "line4": ["   if currentMin != i\n      swap(i, currentMin)","if j loop has found a new minimum, swap i and new minimum"]
                                     }
                 }
                 ////// if num = -1, remove code and hide pseudocode div

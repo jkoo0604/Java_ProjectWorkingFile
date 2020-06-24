@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Title</title>
+        <!-- Required meta tags -->
+        <meta charset="ISO-8859-1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <style>.lineval {font-size: 14px; font-family: Verdana, Geneva, Tahoma, sans-serif;color:darkorange;}</style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col text-center">        
+                    <svg></svg>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-center">
+                    <button id="quickSort" class="btn btn-primary">Quick Sort</button>
+                    <button id="reset" class="btn btn-secondary">Reset</button>
+                </div>
+            </div>
+            <div class="row pseudocode">
+                <div class="col text-center">
+                    <div class="row">
+                        <div class="col-4"></div>
+                        <div class="col-4 text-left code2">
+                        <p><pre class="line1">
+                        while (switched)
+                        </pre></p>
+                        <p><pre class="line2">
+                            switched = false
+                            for i = 1 to lastsort-1
+                        </pre></p>
+                        <p><pre class="line3">
+                                if left value > right value
+                                    swap(left value, right value)
+                                    switched = true
+                        </pre></p>
+                        <p><pre class="line4">
+                            lastsort--
+                        </pre></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4"></div>
+                        <div class="col-4 text-center code1">
+                            <p class="lineval"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>            
+        </div>
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <script src="https://d3js.org/d3.v5.min.js"></script>
+        <script src="AllBaseFunctions.js"></script>
+        <script>
+            //Define the main container size
+            var svgWidth = 500;
+            var svgHeight = 600;
+            //Define initial data
+            var originalData = [33, 62, 44, 14, 80, 100, 56, 120, 180, 30, 40, 120, 10, 10, 10];
+            //Define display padding and width of bars
+            var barPadding = 5;  
+            var barWidth = Math.floor(svgWidth / originalData.length);
+            //Define time to wait between animations in ms
+            var sleepTime= 500;
+            ////// set a flag to stop async function call when reset is triggered
+            var stopSort = false;
+            //Set the default container's size
+            var svg = d3.select('svg')
+            .attr("width", svgWidth)
+            .attr("height", svgHeight)
+            .attr("class", "bar-chart");
+            //Show initial data shuffled
+            initialBars(originalData);
+
+            //Set on click listeners
+            $("#reset").click(function(){
+                ////// set stopSort flag to true, remove pseudocode, replace content of svg completely
+                // stopSort = true;
+                // loadPseudocode(-1);
+                // var currentchart = svg.selectAll("g").remove();
+                // shuffle(originalData);
+                // initialBars(originalData);
+                stopSort = true;
+                loadPseudocode("bubblesort",-1);
+                loadTitle("reset");
+                var currentchart = svg.selectAll("g").remove();
+                originalData = randomArray(15,150);
+                initialBars(originalData);
+
+            });
+            $("#quickSort").click(function(){
+                console.log(originalData);
+                console.log(quickSort(originalData, 0, originalData.length-1));
+                console.log(originalData);
+            });
+
+
+            async function quickSortPartition(data, first, last){
+                var sleepTime = 500;
+                //Set last value in array as the pivot value
+                var pivot = data[last];
+                changeColor(last, "yellow");
+                await sleep(sleepTime);
+                //Keep track of the next value that is larger than the pivot
+                var i = first;
+                //Loop through all values to move all values smaller than pivot to left side of pivot and all values greater to the right
+                for(var j = first; j < last; j++){
+                    //Change color of bar we are looking at
+                    changeColor(j, "red");
+                    await sleep(sleepTime);
+                    if(data[j] <= pivot){
+                        changeColor(j, "green");
+                        await sleep(sleepTime);
+                        var temp = data[j];
+                        data[j] = data[i];
+                        data[i] = temp;
+                        //Only swap if there is something to swap
+                        if(i != j){
+                            await swapPosition(i, j);
+                            await sleep(sleepTime);
+                        }
+                        i++;
+                    }else{
+                        changeColor(j, "purple");
+                        await sleep(sleepTime);
+                    }
+                }
+                //Swap pivot with the next value that is larger than the pivot
+                var temp = data[i];
+                data[i] = data[last];
+                data[last] = temp;
+                await swapPosition(i, last);
+                //set pivot to different color to show it is in final position
+                changeColor(i, "orange");
+                finished[i] = 1;
+                await sleep(sleepTime);
+                //Reset the position IDs
+                await refreshPositionIds(data);
+                //set all finished back to orange;
+                for(var index = 0; index < finished.length; index++){
+                    if(finished[index] == 1){
+                        changeColor(index, "orange");
+                    }else{
+                        changeColor(index, "gray");
+                    }
+                }
+                //Return where the new pivot will be
+                return i;
+            }
+
+            async function quickSort(data, first, last){
+                stopSort = false;
+                emptyZeroArray();
+                createZeroArray(data.length);
+                var sleepTime = 500;
+                //Create an array to use as a stack and keep track of all of the partitions we have
+                var stack = [];
+                //Add first and last index to the stack
+                stack.push(first);
+                stack.push(last);
+                //While the stack still has elements
+                while(stack.length > 0){
+                    //Partition the data
+                    last = stack.pop();
+                    first = stack.pop();
+                    var pivot = await this.quickSortPartition(data, first, last);
+                    //Push the new partition to the stack
+                    if(pivot - 1 > first){
+                        stack.push(first);
+                        stack.push(pivot-1);
+                    }
+                    if(pivot+1 < last){
+                        stack.push(pivot +1);
+                        stack.push(last);
+                    }
+                }
+                //Change all to orange
+                changeColor(-1, "orange");
+            }
+
+
+            var leftBucketPosition = 0;
+
+            async function addLeftBucket(i){
+                var item = findElement(i);
+                var origTransform = parseTransform(item);
+                var newTransform = [leftBucketPosition, origTransform[1]+200];
+                item.transition().attr("transform", "translate(" + newTransform[0] + "," + newTransform[1] + ")");
+                leftBucketPosition += barWidth;
+                await sleep(sleepTime);
+            }
+
+            var rightBucketPosition = svgWidth/2 + barWidth + barWidth/2;
+
+            async function addRightBucket(i){
+                var item = findElement(i);
+                var origTransform = parseTransform(item);
+                var newTransform = [rightBucketPosition, origTransform[1]+200];
+                item.transition().attr("transform", "translate(" + newTransform[0] + "," + newTransform[1] + ")");
+                rightBucketPosition += barWidth;
+                await sleep(sleepTime);
+            }
+
+
+            function loadPseudocode(num) {
+                ////// highlight appropriate line in pseudocode and show explanation for currently highlighted line
+                var codeDict = {
+                    "line1": "If there was no swap during the entire for loop, array is now sorted",
+                    "line2": "Start each 'for' loop with switched = false, and iterate until the last unsorted position",
+                    "line3": "If value at (i-1) is greater than value at (i), swap the two values and set switched flag to true",
+                    "line4": "Last position of each 'for' loop is sorted"
+                }
+                ////// if num = -1, remove code and hide pseudocode div
+                if (num===-1) {
+                    d3.select(".lineval").text("");
+                    for (var y = 0; y<=4; y++) {
+                        d3.select(".line" + y).style("background-color","white")
+                        .style("color","black");
+                    }
+                    d3.select(".pseudocode").style("display","none");
+                    return;
+                }
+                if (stopSort) return;
+                ////// if num in [1,4], highlight pseudocode at line = num
+                d3.select(".pseudocode").style("display","block");
+                let code;
+                for (var z = 1; z<=4; z++) {
+                    code = d3.select(".line" + z)
+                    if (z === num) {
+                        code.style("background-color","black")
+                        .style("color","white");
+                    } else {
+                        code.style("background-color","white")
+                        .style("color","black");
+                    }
+                }
+                d3.select(".lineval").text(codeDict["line" + num]);
+            }
+
+        </script>
+    </body>
+</html>
