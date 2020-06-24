@@ -18,6 +18,22 @@ var colors = {
     "white": "white"
 };
 
+var colors2 = {
+    "custom-navbar" : {
+        "selected": "#ffb83d",
+        "compare" : "#7e848f",
+        "lower": "green",
+        "higher": "purple",
+        "finished": "#db5e4d",
+        "default": "#475951",
+        "black": "black",
+        "white": "white",
+        "complete": "#DD9C90"
+    }    
+};
+
+var currentTheme = colors2['custom-navbar'];
+
 //Move item down
 function moveDown(index){
     //Set how far we move the item down
@@ -68,11 +84,11 @@ function parseTransform(element){
 function changeColor(num, color){
     if (num===-1) {
         let bars = svg.selectAll("g")
-        bars.select("rect").transition().attr("fill",color);
+        bars.select("rect").transition().attr("fill",currentTheme[color]);
         return;
     }
     let bar = findElement(num);
-    bar.select("rect").transition().attr("fill",color);
+    bar.select("rect").transition().attr("fill",currentTheme[color]);
 }
 
 //Finds by position ID and returns the entire element
@@ -107,7 +123,7 @@ function initialBars(data){
     .attr("height",function(d) {return d;})
     .attr("width",barWidth-barPadding)
     .attr("rx",5)
-    .attr('fill', '#475951');
+    .attr('fill', currentTheme['default']);
 
     barChart.append("text")
     .attr("x",(barWidth-barPadding)/2)
