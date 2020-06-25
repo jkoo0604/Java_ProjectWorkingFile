@@ -19,7 +19,7 @@ var colors = {
 };
 
 var colors2 = {
-    "custom-navbar" : {
+    "default" : {
         "selected": "#ffb83d",
         "compare" : "#7e848f",
         "lower": "green",
@@ -29,7 +29,17 @@ var colors2 = {
         "black": "black",
         "white": "white",
         "complete": "#DD9C90"
-    }    
+    },   
+    "custom": {
+        "selected": "#f9c74f",
+        "compare" : "#f94144",
+        "lower": "#90be6d",
+        "higher": "#6930c3",
+        "finished": "#f3722c",
+        "default": "#577590",
+        "black": "black",
+        "white": "white"
+    }
 };
 
 var currentTheme = colors2['custom-navbar'];

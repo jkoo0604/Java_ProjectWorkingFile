@@ -1,55 +1,62 @@
 //Define the main container size
 var minWidth = 500;
 var minHeight = minWidth * .6;
+console.log(document.getElementsByClassName("container")[0].clientWidth)
 // var svgWidth = Math.max(minWidth, document.getElementById("leftpane").clientWidth*0.9);
-var svgWidth = Math.max(minWidth, document.getElementsByClassName("container")[0].clientWidth*.66);
+var svgWidth = Math.max(minWidth, document.getElementsByClassName("container")[0].clientWidth*.9*.66);
 var svgHeight = Math.max(minHeight,svgWidth*.6);
 
-console.log(document.getElementById("leftpane").clientWidth)
-
-
-
-//Set the transition duration
-var transitionDuration = 100;
-//Define time to wait between animations in ms
-var sleepTime = 2*transitionDuration;
-
-//Set the moveUp and moveDown distance
-var verticalMoveDistance = (svgHeight)/3;
 //Define initial height of bars above bottom of svg container
 var yAdjust = (svgHeight)/2;
+//Set the moveUp and moveDown distance
+var verticalMoveDistance = yAdjust*.9;
+var scalerPadding=50;
 
 //Define colors
 var colors = {
     "default" : {
-        "selected": "#f9c74f",
-        "compare" : "#f94144",
-        "lower": "#90be6d",
-        "higher": "#6930c3",
-        "finished": "#f3722c",
-        "default": "#577590",
+        "selected": "#f9c74f",//yellow
+        "compare" : "#f94144",//red
+        "lower": "#90be6d",//green
+        "higher": "#6930c3",//purple
+        "finished": "#f3722c",//orange
+        "default": "#577590",//bluish gray
         "black": "black",
         "white": "white"
     },   
     "colorblind": {
-        "selected": "#f9c74f",
-        "compare" : "#f94144",
-        "lower": "#90be6d",
-        "higher": "#6930c3",
-        "finished": "#f3722c",
-        "default": "#577590",
+        "selected": "#F0E442",//yellow
+        "compare" : "#D55E00",//red
+        "lower": "#009E73",//green
+        "higher": "#CC79A7",//pink
+        "finished": "#E69F00",//orange
+        "default": "#0072B2",//bluish gray
         "black": "black",
         "white": "white"
     }
 };
 
-var currentTheme = colors['default'];
+//Select color theme
+var selectedTheme = "default";
+var currentTheme = colors[selectedTheme];
+$("#colorTheme").click(function(){
+    if(selectedTheme != $(this).val()){
+        selectedTheme = $(this).val();
+        console.log("theme changed");
+        currentTheme = colors[selectedTheme];
+        console.log(originalData);
+        resetBars(originalData);
+    }
+});
 
 function initialBars(data){
-    var maxData = Math.max.apply(false,data);
-    var barHeight = d3.scaleLinear().domain([0,maxData]).range([0,yAdjust-35]);
+    // maxData = Math.max.apply(false,data);
+    // barHeight = d3.scaleLinear().domain([0,maxData]).range([0,yAdjust-scalerPadding]);
     // loadPseudocode("bubblesort",-1);// took out this line for now
     ////// create a g tag first to group rect and text
+    console.log(barHeight(150));
+    svg.attr("width", svgWidth)
+    .attr("height", svgHeight);
     var barChart = svg.selectAll("g")  
     .data(data)
     .enter()
@@ -57,7 +64,7 @@ function initialBars(data){
     // .attr("id", function(d,i){return 'item'+i;})
     .attr("transform", function(d, i){return "translate(" + (barWidth * i) + "," + (svgHeight-barHeight(d)-yAdjust) + ")";})               
     .attr("positionID", function(d,i){return "p"+(i+1);});
-
+    
     barChart.append("rect")
     .attr("height",function(d) {return barHeight(d);})
     .attr("width",barWidth-barPadding)
@@ -77,18 +84,8 @@ function initialBars(data){
 function resetBars(data){
     ////// currently not used in 'reset'
     stopSort = true;
-    var barChart = svg.selectAll("g")  
-    .data(shuffle(data))
-    .transition()
-    .attr("transform", function(d, i){return "translate(" + (barWidth * i) + "," + (svgHeight-d-yAdjust) + ")";});
-    
-    barChart.select("rect")
-    .attr("height",function(d) {return d;})
-    .attr('fill', currentTheme["default"]);
-
-    barChart.select("text")
-    .attr("x",(barWidth-barPadding)/2)
-    .text(function(d) {return d;});
+    var barChart = svg.selectAll("g").remove();  
+    initialBars(data);
 }
 
 //Randomizes input data set
@@ -104,15 +101,17 @@ function shuffle(dataset){
 
 //Function to show all the bars  -- not sure if we need this one anymore
 function generateBars(data){
+    // maxData = Math.max.apply(false,data);
+    // barHeight = d3.scaleLinear().domain([0,maxData]).range([0,yAdjust-scalerPadding]);
     if (stopSort) return;
     //Generate all the bars
     var barChart = svg.selectAll("g")  
     .data(data)
     .transition()
-    .attr("transform", function(d, i){return "translate(" + (barWidth * i) + "," + (svgHeight-d-yAdjust) + ")";});
+    .attr("transform", function(d, i){return "translate(" + (barWidth * i) + "," + (svgHeight-barHeight(d)-yAdjust) + ")";});
     
     barChart.select("rect")
-    .attr("height",function(d) {return d;})
+    .attr("height",function(d) {return barHeight(d);})
 
     barChart.select("text")
     .attr("x",(barWidth-barPadding)/2)
@@ -121,14 +120,15 @@ function generateBars(data){
 
 // basically generate bars without the transition
 function refreshPositionIds(data){
-    var yAdjust = 300;
+    // maxData = Math.max.apply(false,data);
+    // barHeight = d3.scaleLinear().domain([0,maxData]).range([0,yAdjust-scalerPadding]);
     //Generate all the bars
     var barChart = svg.selectAll("g")  
     .data(data)
-    .attr("transform", function(d, i){return "translate(" + (barWidth * i) + "," + (svgHeight-d-yAdjust) + ")";})
+    .attr("transform", function(d, i){return "translate(" + (barWidth * i) + "," + (svgHeight-barHeight(d)-yAdjust) + ")";})
     .attr("positionID", function(d,i){return "p"+(i+1);});
     barChart.select("rect")
-    .attr("height",function(d) {return d;})
+    .attr("height",function(d) {return barHeight(d);})
 
     barChart.select("text")
     .attr("x",(barWidth-barPadding)/2)
@@ -147,10 +147,14 @@ function swapPositionID(item1, item2){
 function swapPosition(num1, num2) { 
     let gRight = findElement(num1);
     let gLeft = findElement(num2);
-    let hRight = parseInt(gRight.select("rect").attr("height"));
-    let hLeft = parseInt(gLeft.select("rect").attr("height"));
-    gRight.transition().attr("transform", "translate(" + (barWidth * (num2)) + "," + (svgHeight-hRight-yAdjust) + ")");
-    gLeft.transition().attr("transform", "translate(" + (barWidth * (num1)) + "," + (svgHeight-hLeft-yAdjust) + ")");
+    let hRight = parseTransform(gRight);
+    let hLeft = parseTransform(gLeft);
+    gRight.transition().attr("transform", "translate(" + (barWidth * (num2)) + "," + hRight[1] + ")");
+    gLeft.transition().attr("transform", "translate(" + (barWidth * (num1)) + "," + hLeft[1] + ")");
+    // let hRight = parseInt(gRight.select("rect").attr("height"));
+    // let hLeft = parseInt(gLeft.select("rect").attr("height"));
+    // gRight.transition().attr("transform", "translate(" + (barWidth * (num2)) + "," + (svgHeight-barHeight(hRight)-yAdjust) + ")");
+    // gLeft.transition().attr("transform", "translate(" + (barWidth * (num1)) + "," + (svgHeight-barHeight(hLeft)-yAdjust) + ")");
     swapPositionID(num1, num2);
 }
 
@@ -239,7 +243,7 @@ function sleep(ms) {
 function randomArray(length, upperLimit) {
     var newArray = [];
     for (var x = 0; x < length; x++) {
-        newArray.push(Math.floor(Math.random()*((upperLimit+1) - 3 + 1)) + 3);
+        newArray.push(Math.floor(Math.random()*(upperLimit - 3 + 1)) + 3);
     }
     return newArray;
 }
@@ -261,15 +265,23 @@ function createZeroArray(length){
 }
 
 function openRightPane() {
+    if (document.getElementsByClassName("container")[0].clientWidth < 992) {
+        d3.select("#rightpane").style("width","100%");
+        return;
+    }
     $("#leftpane").animate({
         width: '66%'
-    }, 1300);
-    $("#rightpane").animate({
-        width: '33%'
-    }, 1500);
+    }, 800);
+    $("#rightpane").animate({opacity:0},0).animate({
+        width: '30%'
+    }, 700).animate({opacity:1},1000);
+    
 }
 
 function closeRightPane(speed) {
+    if (document.getElementsByClassName("container")[0].clientWidth < 992) {
+        return;
+    }
     speed = speed || "default"
     if (speed == "quick") {
         $("#leftpane").animate({
@@ -282,16 +294,22 @@ function closeRightPane(speed) {
     }
     $("#leftpane").animate({
         width: '99%'
-    }, 1500);
+    }, 800);
     $("#rightpane").animate({
         width: '0%'
-    }, 1000);
+    }, 400);
 }
 
 function resetDimension() {
-    svgWidth = Math.max(minWidth, document.getElementsByClassName("container").clientWidth*.9);
+    svgWidth = Math.max(minWidth, document.getElementsByClassName("container")[0].clientWidth*.9*.66);
     svgHeight = Math.max(minHeight,svgWidth*.6);
     barWidth = Math.floor((svgWidth - barPadding) / originalData.length);
-    verticalMoveDistance = (svgHeight)/3;
+    verticalMoveDistance = yAdjust*.9;
     yAdjust = (svgHeight)/2;
+}
+
+function barHeight(d) {
+    var maxData = Math.max.apply(false,originalData);
+    var scaler = d3.scaleLinear().domain([0,maxData]).range([0,yAdjust-scalerPadding]);
+    return scaler(d);
 }
